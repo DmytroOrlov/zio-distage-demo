@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.fixture.Rnd.rnd
 import izumi.distage.testkit.scalatest.DistageBIOEnvSpecScalatest
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest._
@@ -10,8 +11,8 @@ class SearchTest extends DistageBIOEnvSpecScalatest[ZIO] with OptionValues with 
     //        "add and find foo" in {
     "not find some random" in {
       for {
-        _ <- zio.IO.unit
-        notMatched <- Logic.>.check("asdf")
+        rndItem <- rnd[String]
+        notMatched <- Logic.>.check(rndItem)
         _ = assert(!notMatched)
       } yield ()
     }
