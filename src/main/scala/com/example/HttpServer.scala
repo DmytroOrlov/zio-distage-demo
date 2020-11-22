@@ -19,11 +19,11 @@ trait HttpServer {
 }
 
 object HttpServer {
-  def make(routes: Set[HttpRoutes[Task]] /*, ec: ExecutionContext@Id("zio.cpu")*/) =
+  def make(routes: Set[HttpRoutes[Task]], ec: ExecutionContext@Id("zio.cpu")) =
     for {
       implicit0(rts: Runtime[Any]) <- ZIO.runtime[Any].toManaged_
       route = routes.reduce(_ <+> _)
-      srv <- BlazeServerBuilder[Task](ExecutionContext.Implicits.global)
+      srv <- BlazeServerBuilder[Task](ec)
         .withHttpApp(route.orNotFound)
         .bindHttp()
         .resource
