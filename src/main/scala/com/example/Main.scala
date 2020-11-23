@@ -2,6 +2,7 @@ package com.example
 
 import buildinfo.BuildInfo.version
 import cats.syntax.semigroupk._
+import com.example.LogicErr.AsFailureResp
 import com.typesafe.config.ConfigFactory
 import distage._
 import izumi.distage.config.AppConfigModule
@@ -26,7 +27,7 @@ object Main extends App {
     router = Router[Task](
       "/" -> ((check.toRoutes { req =>
         Logic.>.check(req.value)
-          .bimap(e => FailureResp(s"$e"), CheckResp.apply)
+          .bimap(_ continue new AsFailureResp {}, CheckResp.apply)
           .either
           .provide(env)
       }: HttpRoutes[Task]) <+>
