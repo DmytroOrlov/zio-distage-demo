@@ -8,7 +8,15 @@ import zio._
 
 class SearchTest extends DistageBIOEnvSpecScalatest[ZIO] with OptionValues with EitherValues with TypeCheckedTripleEquals {
   "Demo app" should {
-    //        "add and find foo" in {
+    "add and find foo" in {
+      for {
+        _ <- Logic.>.add("foo bar bazz")
+        matched <- Logic.>.check("foo")
+        _ <- IO {
+          assert(matched)
+        }
+      } yield ()
+    }
     "not find some random" in {
       for {
         rndItem <- rnd[String]

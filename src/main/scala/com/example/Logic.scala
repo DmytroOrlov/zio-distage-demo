@@ -7,6 +7,8 @@ import zio.macros.accessible
 
 @accessible
 trait Logic {
+  def add(items: String): IO[Capture[LogicErr with SearchErr], Unit]
+
   def check(item: String): IO[Capture[LogicErr with SearchErr], Boolean]
 }
 
@@ -14,6 +16,12 @@ object Logic {
   val make = for {
     env <- ZIO.environment[Has[SearchClient]]
   } yield new Logic {
+    def add(items: String) =
+      (for {
+        _ <- SearchClient.>.add(items)
+      } yield ())
+        .provide(env)
+
     def check(item: String) =
       (for {
         _ <- IO.fail(LogicErr.no42(s"item=$item"))

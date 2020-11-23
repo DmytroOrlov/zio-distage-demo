@@ -6,12 +6,18 @@ import zio.{IO, Ref}
 
 @accessible
 trait SearchClient {
+  def add(items: String): IO[Capture[SearchErr], Unit]
+
   def search(item: String): IO[Capture[SearchErr], Boolean]
 }
 
 object SearchClient {
   def dummy(store: Ref[Set[String]]): SearchClient =
     new SearchClient {
+      def add(items: String) = for {
+        _ <- store.getAndUpdate(_ + items)
+      } yield ()
+
       def search(item: String) =
         for {
           items <- store.get
