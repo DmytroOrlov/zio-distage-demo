@@ -50,7 +50,7 @@ val commonSettings = Seq(
   scalaVersion := "2.13.4",
 )
 
-lazy val `demo` = (project in file("."))
+lazy val `zio-distage-demo` = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .settings(commonSettings)
   .settings(

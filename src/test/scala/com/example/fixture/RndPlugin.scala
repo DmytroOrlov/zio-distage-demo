@@ -1,15 +1,12 @@
 package com.example.fixture
 
 import distage.plugins.PluginDef
-
-object SearchTestPlugin extends PluginDef
-
-import izumi.functional.bio.BIO
+import izumi.functional.bio.{BIO, F}
 import org.scalacheck.Gen.Parameters
 import org.scalacheck.{Arbitrary, Prop}
 import zio._
 
-object SearchPlugin extends PluginDef {
+object RndPlugin extends PluginDef {
   make[Rnd[IO]].from[Rnd.Impl[IO]]
 }
 
@@ -25,7 +22,7 @@ object Rnd {
 
   final class Impl[F[+_, +_] : BIO] extends Rnd[F] {
     override def apply[A: Arbitrary]: F[Nothing, A] = {
-      BIO.sync {
+      F.sync {
         val (p, s) = Prop.startSeed(Parameters.default)
         Arbitrary.arbitrary[A].pureApply(p, s)
       }

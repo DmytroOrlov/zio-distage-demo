@@ -1,8 +1,12 @@
 package com.example
 
 import capture.Capture
+import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.zio.instances._
+import com.sksamuel.elastic4s.{ElasticClient, ElasticDsl}
+import distage.Id
 import zio.macros.accessible
-import zio.{IO, Ref}
+import zio.{Has, IO, Ref, ZIO}
 
 @accessible
 trait SearchClient {
@@ -12,6 +16,29 @@ trait SearchClient {
 }
 
 object SearchClient {
+  def make(index: String@Id("index"), field: String@Id("field")) =
+    for {
+      client <- ZIO.service[ElasticClient]
+    } yield new SearchClient {
+      def search(item: String) =
+        for {
+          resp <- client.execute(
+            ElasticDsl.search(index).query(item)
+          ).mapError(SearchErr.throwable("elastic search"))
+          res <- IO.fromEither(resp.toEither)
+            .bimap(
+              e => SearchErr.message(s"RequestFailure ${e.reason}"),
+              _.nonEmpty
+            )
+        } yield res
+
+      def add(items: String) = for {
+        _ <- client.execute(
+          indexInto(index).fields(field -> items)
+        ).mapError(SearchErr.throwable("indexInto"))
+      } yield ()
+    }
+
   def dummy(store: Ref[Set[String]]): SearchClient =
     new SearchClient {
       def add(items: String) = for {

@@ -1,28 +1,38 @@
 package com.example
 
 import com.example.fixture.Rnd.rnd
+import com.example.fixture.{ElasticDocker, ElasticDockerSvc}
+import distage._
+import izumi.distage.model.definition.ModuleDef
+import izumi.distage.testkit.TestConfig
 import izumi.distage.testkit.scalatest.DistageBIOEnvSpecScalatest
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest._
+import sttp.model.Uri._
+import zio.Schedule.{elapsed, exponential}
 import zio._
+import zio.duration._
 
-class SearchTest extends DistageBIOEnvSpecScalatest[ZIO] with OptionValues with EitherValues with TypeCheckedTripleEquals {
+abstract class SearchTest extends DistageBIOEnvSpecScalatest[ZIO] with OptionValues with EitherValues with TypeCheckedTripleEquals {
+  val retryPolicy = (exponential(10.milliseconds) >>> elapsed).whileOutput(_ < 1.minute)
   "Demo app" should {
     "add and find foo" in {
-      for {
+      (for {
         _ <- Logic.>.add("foo bar bazz")
         matched <- Logic.>.check("foo")
         _ <- IO {
           assert(matched)
         }
-      } yield ()
+      } yield ()).retry(retryPolicy)
     }
     "not find some random" in {
-      for {
+      (for {
         rndItem <- rnd[String]
         notMatched <- Logic.>.check(rndItem)
-        _ = assert(!notMatched)
-      } yield ()
+        _ <- IO {
+          assert(!notMatched)
+        }
+      } yield ()).retry(retryPolicy)
     }
     "error on 42" in {
       for {
@@ -38,4 +48,28 @@ class SearchTest extends DistageBIOEnvSpecScalatest[ZIO] with OptionValues with 
       } yield ()
     }
   }
+}
+
+final class DummySearchTest extends SearchTest {
+  override def config: TestConfig = super.config.copy(
+    moduleOverrides = new ModuleDef {
+      make[SearchClient]
+        .fromEffect(Ref.make(Set.empty[String]).map(SearchClient.dummy))
+    }
+  )
+}
+
+final class DockerSearchTest extends SearchTest {
+  override def config: TestConfig = super.config.copy(
+    moduleOverrides = new ModuleDef {
+      make[AppConf].fromEffect { (service: ElasticDockerSvc, index: String@Id("index"), field: String@Id("field")) =>
+        for {
+          url <- Task(uri"http://${service.es.hostV4}:${service.es.port}")
+        } yield AppConf(url.toString)
+      }
+    },
+    memoizationRoots = Set(
+      DIKey.get[ElasticDocker.Container],
+    ),
+  )
 }

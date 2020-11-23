@@ -2,9 +2,7 @@ package com.example
 
 import buildinfo.BuildInfo.version
 import cats.syntax.semigroupk._
-import com.typesafe.config.ConfigFactory
 import distage._
-import izumi.distage.config.AppConfigModule
 import izumi.distage.plugins.PluginConfig
 import izumi.distage.plugins.load.PluginLoader
 import org.http4s.HttpRoutes
@@ -31,7 +29,13 @@ object Main extends App {
             CheckResp.apply)
           .either
           .provide(env)
-      }: HttpRoutes[Task]) <+>
+      }: HttpRoutes[Task]) <+> add.toRoutes { req =>
+        Logic.>.add(req.items)
+          .bimap(
+            _ continue new LogicErr.AsFailureResp with SearchErr.AsFailureResp {},
+            _ => AddResp("ok"))
+          .either.provide(env)
+      } <+>
         new SwaggerHttp4s(docs.toYaml).routes)
     )
   } yield router
@@ -44,11 +48,10 @@ object Main extends App {
         "com.example",
       )
     )
-    val appConfigModule = AppConfigModule(ConfigFactory.defaultApplication().resolve())
     val appModules = PluginLoader().load(pluginConfig)
 
     Injector()
-      .produceGetF[Task, UIO[ExitCode]]((appModules :+ appConfigModule).merge)
+      .produceGetF[Task, UIO[ExitCode]](appModules.merge)
       .useEffect
       .catchAll(e => UIO(println(s"failed to start $e")).as(ExitCode.failure))
   }
