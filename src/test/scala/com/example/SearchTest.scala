@@ -19,8 +19,12 @@ class SearchTest extends DistageBIOEnvSpecScalatest[ZIO] with OptionValues with 
     "error on 42" in {
       for {
         error42 <- Logic.>.check("42").either
-        str = error42.left.value continue new LogicErr[String] {
+        str = error42.left.value continue new LogicErr[String] with SearchErr[String] {
           def no42(message: String): String = "case 42"
+
+          def throwable(message: String)(e: Throwable) = ???
+
+          def message(message: String) = ???
         }
         _ = assert(str === "case 42")
       } yield ()

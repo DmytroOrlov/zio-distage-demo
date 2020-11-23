@@ -7,16 +7,20 @@ import zio.macros.accessible
 
 @accessible
 trait Logic {
-  def check(item: String): IO[Capture[LogicErr], Boolean]
+  def check(item: String): IO[Capture[LogicErr with SearchErr], Boolean]
 }
 
 object Logic {
-  val mock = new Logic {
+  val make = for {
+    env <- ZIO.environment[Has[SearchClient]]
+  } yield new Logic {
     def check(item: String) =
-      for {
+      (for {
         _ <- IO.fail(LogicErr.no42(s"item=$item"))
           .when(item.contains("42"))
-      } yield false
+        res <- SearchClient.>.search(item)
+      } yield res)
+        .provide(env)
   }
 }
 
