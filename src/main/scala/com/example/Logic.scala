@@ -18,7 +18,7 @@ object Logic {
   } yield new Logic {
     def add(items: String) =
       (for {
-        _ <- SearchClient.>.add(items)
+        _ <- SearchClient.add(items)
       } yield ())
         .provide(env)
 
@@ -26,7 +26,7 @@ object Logic {
       (for {
         _ <- IO.fail(LogicErr.no42(s"item=$item"))
           .when(item.contains("42"))
-        res <- SearchClient.>.search(item)
+        res <- SearchClient.search(item)
       } yield res)
         .provide(env)
   }

@@ -18,19 +18,19 @@ object Main extends App {
   val logicRoutes = for {
     implicit0(rts: Runtime[Any]) <- ZIO.runtime[Any]
     env <- ZIO.environment[Has[Logic]]
-    add <- Endpoints.>.add
-    check <- Endpoints.>.check
+    add <- Endpoints.add
+    check <- Endpoints.check
     docs = Seq(add, check).toOpenAPI("demo", version)
     router = Router[Task](
       "/" -> ((check.toRoutes { req =>
-        Logic.>.check(req.value)
+        Logic.check(req.value)
           .bimap(
             _ continue new SearchErr.AsFailureResp with LogicErr.AsFailureResp {},
             CheckResp.apply)
           .either
           .provide(env)
       }: HttpRoutes[Task]) <+> add.toRoutes { req =>
-        Logic.>.add(req.items)
+        Logic.add(req.items)
           .bimap(
             _ continue new LogicErr.AsFailureResp with SearchErr.AsFailureResp {},
             _ => AddResp("ok"))
@@ -40,7 +40,7 @@ object Main extends App {
     )
   } yield router
 
-  val program = HttpServer.>.bindHttp *> IO.never
+  val program = HttpServer.bindHttp *> IO.never
 
   def run(args: List[String]) = {
     val pluginConfig = PluginConfig.cached(
@@ -51,8 +51,8 @@ object Main extends App {
     val appModules = PluginLoader().load(pluginConfig)
 
     Injector()
-      .produceGetF[Task, UIO[ExitCode]](appModules.merge)
+      .produceGetF[Task, UIO[Unit]](appModules.merge)
       .useEffect
-      .catchAll(e => UIO(println(s"failed to start $e")).as(ExitCode.failure))
+      .exitCode
   }
 }

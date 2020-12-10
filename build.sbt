@@ -10,12 +10,12 @@ val V = new {
   val distage = "0.10.19"
   val tapir = "0.16.16"
   val sttp = "2.2.9"
-  val elastic4s = "7.9.1"
+  val elastic4s = "7.9.2"
 
   val scalacheck = "1.15.1"
 
   val betterMonadicFor = "0.3.1"
-  val kindProjector = "0.11.1"
+  val kindProjector = "0.11.2"
 
   val silencer = "1.7.1"
 }

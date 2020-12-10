@@ -18,8 +18,8 @@ abstract class SearchTest extends DistageBIOEnvSpecScalatest[ZIO] with OptionVal
   "Demo app" should {
     "add and find foo" in {
       (for {
-        _ <- Logic.>.add("foo bar bazz")
-        matched <- Logic.>.check("foo")
+        _ <- Logic.add("foo bar bazz")
+        matched <- Logic.check("foo")
         _ <- IO {
           assert(matched)
         }
@@ -28,7 +28,7 @@ abstract class SearchTest extends DistageBIOEnvSpecScalatest[ZIO] with OptionVal
     "not find some random" in {
       (for {
         rndItem <- rnd[String]
-        notMatched <- Logic.>.check(rndItem)
+        notMatched <- Logic.check(rndItem)
         _ <- IO {
           assert(!notMatched)
         }
@@ -36,7 +36,7 @@ abstract class SearchTest extends DistageBIOEnvSpecScalatest[ZIO] with OptionVal
     }
     "error on 42" in {
       for {
-        error42 <- Logic.>.check("42").either
+        error42 <- Logic.check("42").either
         str = error42.left.value continue new LogicErr[String] with SearchErr[String] {
           def no42(message: String): String = "case 42"
 

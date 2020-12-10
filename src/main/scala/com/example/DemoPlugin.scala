@@ -38,5 +38,5 @@ object DemoPlugin extends PluginDef with ConfigModuleDef with ZIODIEffectModule 
   many[HttpRoutes[Task]]
     .addHas(Main.logicRoutes)
   make[HttpServer].fromResource(HttpServer.make _)
-  make[UIO[ExitCode]].from(provideHas(Main.program.provide))
+  make[UIO[Unit]].from(provideHas(Main.program.provide))
 }
