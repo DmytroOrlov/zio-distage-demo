@@ -1,7 +1,12 @@
 package com.example.fixture
 
+import distage.Mode
+import distage.plugins.PluginDef
 import izumi.distage.docker.ContainerDef
-import izumi.distage.docker.Docker.{ContainerConfig, DockerPort}
+import izumi.distage.docker.Docker.{AvailablePort, ContainerConfig, DockerPort}
+import izumi.distage.docker.modules.DockerSupportModule
+import izumi.distage.model.definition.Id
+import zio.Task
 
 object ElasticDocker extends ContainerDef {
   val primaryPort: DockerPort = DockerPort.TCP(9200)
@@ -15,21 +20,16 @@ object ElasticDocker extends ContainerDef {
   }
 }
 
-import izumi.distage.docker.Docker.AvailablePort
-import izumi.distage.docker.modules.DockerSupportModule
-import izumi.distage.model.definition.Id
-import izumi.distage.model.definition.StandardAxis.Env
-import izumi.distage.plugins.PluginDef
-import zio.Task
-
 class ElasticDockerSvc(val es: AvailablePort@Id("es"))
 
-object ElasticPlugin extends DockerSupportModule[Task] with PluginDef {
+object ElasticPlugin extends PluginDef {
+  include(DockerSupportModule[Task])
+
   make[ElasticDocker.Container].fromResource {
     ElasticDocker.make[Task]
   }
 
-  make[AvailablePort].named("es").tagged(Env.Test).from {
+  make[AvailablePort].named("es").tagged(Mode.Test).from {
     dn: ElasticDocker.Container =>
       dn.availablePorts.first(ElasticDocker.primaryPort)
   }

@@ -4,17 +4,16 @@ import com.sksamuel.elastic4s.sttp.SttpRequestHttpClient
 import com.sksamuel.elastic4s.{ElasticClient, ElasticProperties}
 import com.typesafe.config.ConfigFactory
 import distage.config.ConfigModuleDef
-import distage.{HasConstructor, ProviderMagnet}
+import distage.{Functoid, HasConstructor, Tag}
 import izumi.distage.config.AppConfigModule
-import izumi.distage.effect.modules.ZIODIEffectModule
 import izumi.distage.plugins.PluginDef
 import org.http4s.HttpRoutes
 import zio._
 
 case class AppConf(url: String)
 
-object DemoPlugin extends PluginDef with ConfigModuleDef with ZIODIEffectModule {
-  def provideHas[R: HasConstructor, A: Tag](fn: R => A): ProviderMagnet[A] =
+object DemoPlugin extends PluginDef with ConfigModuleDef {
+  def provideHas[R: HasConstructor, A: Tag](fn: R => A): Functoid[A] =
     HasConstructor[R].map(fn)
 
   def makeEsClient(cfg: AppConf) =

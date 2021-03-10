@@ -50,8 +50,8 @@ object Main extends App {
     )
     val appModules = PluginLoader().load(pluginConfig)
 
-    Injector()
-      .produceGetF[Task, UIO[Unit]](appModules.merge)
+    Injector[Task]()
+      .produceGet[UIO[Unit]](appModules.result.merge)
       .useEffect
       .exitCode
   }

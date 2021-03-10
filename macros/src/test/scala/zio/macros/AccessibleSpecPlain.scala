@@ -46,7 +46,7 @@ object AccessibleSpecPlain extends DefaultRunnableSpec {
           """
             @accessible
             trait Module {
-                val foo: UIO[Unit]
+              val foo: UIO[Unit]
             }
 
             object Check {
@@ -61,7 +61,7 @@ object AccessibleSpecPlain extends DefaultRunnableSpec {
           """
             @accessible
             trait Module {
-                def foo(i: Int): UIO[Unit]
+              def foo(i: Int): UIO[Unit]
             }
 
             object Check {
@@ -76,7 +76,7 @@ object AccessibleSpecPlain extends DefaultRunnableSpec {
           """
             @accessible
             trait Module {
-                def varargsFoo(a: Int, b: Int*): UIO[Unit]
+              def varargsFoo(a: Int, b: Int*): UIO[Unit]
             }
 
             object Check {
@@ -91,9 +91,9 @@ object AccessibleSpecPlain extends DefaultRunnableSpec {
           """
             @accessible
             trait Module {
-                def umanaged(s: String): UManaged[Int]
-                def urmanaged(s: String): URManaged[Has[String], Int]
-                def zmanaged(s: String): ZManaged[Has[String], String, Int]
+              def umanaged(s: String): UManaged[Int]
+              def urmanaged(s: String): URManaged[Has[String], Int]
+              def zmanaged(s: String): ZManaged[Has[String], String, Int]
             }
 
             object Check {
@@ -112,8 +112,8 @@ object AccessibleSpecPlain extends DefaultRunnableSpec {
           """
              @accessible
              trait Module {
-                 def foo(x: Int): Task[Unit] = foo(x.toString)
-                 def foo(x: String): Task[Unit]
+               def foo(x: Int): Task[Unit] = foo(x.toString)
+               def foo(x: String): Task[Unit]
              }
           """.stripMargin
         })(isRight(anything))
@@ -123,13 +123,13 @@ object AccessibleSpecPlain extends DefaultRunnableSpec {
           """
              @accessible
              trait Module[T] {
-                 val v: Task[T]
-                 def f1: UIO[Unit]
-                 def f2(): UIO[Unit]
-                 def f3(t: T): UIO[Unit]
-                 def f4(t: T)(i: Int): UIO[Unit]
-                 def f5(t: T)(implicit i: Int): UIO[Unit]
-                 def f6(t: T*): UIO[Unit]
+               val v: Task[T]
+               def f1: UIO[Unit]
+               def f2(): UIO[Unit]
+               def f3(t: T): UIO[Unit]
+               def f4(t: T)(i: Int): UIO[Unit]
+               def f5(t: T)(implicit i: Int): UIO[Unit]
+               def f6(t: T*): UIO[Unit]
              }
 
              object Check {
@@ -156,7 +156,7 @@ object AccessibleSpecPlain extends DefaultRunnableSpec {
           """
              @accessible
              trait Module[-R] {
-                 val v: RIO[R, Unit]
+               val v: RIO[R, Unit]
              }
 
              object Check {
@@ -173,14 +173,14 @@ object AccessibleSpecPlain extends DefaultRunnableSpec {
              trait Bar
 
              @accessible
-             trait Module [T <: Foo, U >: Bar] {
-                 val v: Task[T]
-                 def f1: UIO[U]
-                 def f2(): UIO[U]
-                 def f3(t: T): UIO[U]
-                 def f4(t: T)(u: U): UIO[U]
-                 def f5(t: T)(implicit u: U): UIO[U]
-                 def f6(t: T*): UIO[U]
+             trait Module[T <: Foo, U >: Bar] {
+               val v: Task[T]
+               def f1: UIO[U]
+               def f2(): UIO[U]
+               def f3(t: T): UIO[U]
+               def f4(t: T)(u: U): UIO[U]
+               def f5(t: T)(implicit u: U): UIO[U]
+               def f6(t: T*): UIO[U]
              }
 
              object Check {
@@ -207,32 +207,32 @@ object AccessibleSpecPlain extends DefaultRunnableSpec {
           """
             @accessible
             trait Module {
-                val static                                 : UIO[String]
-                def zeroArgs                               : UIO[Int]
-                def zeroArgsWithParens()                   : UIO[Long]
-                def singleArg(arg1: Int)                   : UIO[String]
-                def multiArgs(arg1: Int, arg2: Long)       : UIO[String]
-                def multiParamLists(arg1: Int)(arg2: Long) : UIO[String]
-                def typedVarargs[T](arg1: Int, arg2: T*)   : UIO[T]
-                def command(arg1: Int)                     : UIO[Unit]
-                def overloaded(arg1: Int)                  : UIO[String]
-                def overloaded(arg1: Long)                 : UIO[String]
+              val static                                 : UIO[String]
+              def zeroArgs                               : UIO[Int]
+              def zeroArgsWithParens()                   : UIO[Long]
+              def singleArg(arg1: Int)                   : UIO[String]
+              def multiArgs(arg1: Int, arg2: Long)       : UIO[String]
+              def multiParamLists(arg1: Int)(arg2: Long) : UIO[String]
+              def typedVarargs[T](arg1: Int, arg2: T*)   : UIO[T]
+              def command(arg1: Int)                     : UIO[Unit]
+              def overloaded(arg1: Int)                  : UIO[String]
+              def overloaded(arg1: Long)                 : UIO[String]
 
-                val staticManaged                                 : UManaged[String]
-                def zeroArgsManaged                               : UManaged[Int]
-                def zeroArgsTypedManaged[T]                       : UManaged[T]
-                def zeroArgsWithParensManaged()                   : UManaged[Long]
-                def singleArgManaged(arg1: Int)                   : UManaged[String]
-                def multiArgsManaged(arg1: Int, arg2: Long)       : UManaged[String]
-                def multiParamListsManaged(arg1: Int)(arg2: Long) : UManaged[String]
-                def typedVarargsManaged[T](arg1: Int, arg2: T*)   : UManaged[T]
-                def commandManaged(arg1: Int)                     : UManaged[Unit]
-                def overloadedManaged(arg1: Int)                  : UManaged[String]
-                def overloadedManaged(arg1: Long)                 : UManaged[String]
+              val staticManaged                                 : UManaged[String]
+              def zeroArgsManaged                               : UManaged[Int]
+              def zeroArgsTypedManaged[T]                       : UManaged[T]
+              def zeroArgsWithParensManaged()                   : UManaged[Long]
+              def singleArgManaged(arg1: Int)                   : UManaged[String]
+              def multiArgsManaged(arg1: Int, arg2: Long)       : UManaged[String]
+              def multiParamListsManaged(arg1: Int)(arg2: Long) : UManaged[String]
+              def typedVarargsManaged[T](arg1: Int, arg2: T*)   : UManaged[T]
+              def commandManaged(arg1: Int)                     : UManaged[Unit]
+              def overloadedManaged(arg1: Int)                  : UManaged[String]
+              def overloadedManaged(arg1: Long)                 : UManaged[String]
 
-                def function(arg1: Int)                    : String
-                def sink(arg1: Int)                        : ZSink[Any, Nothing, Int, Int, List[Int]]
-                def stream(arg1: Int)                      : ZStream[Any, Nothing, Int]
+              def function(arg1: Int)                    : String
+              def sink(arg1: Int)                        : ZSink[Any, Nothing, Int, Int, List[Int]]
+              def stream(arg1: Int)                      : ZStream[Any, Nothing, Int]
             }
 
             object Check {
